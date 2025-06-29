@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>حاسبة النوم الذكي - نوم صحي لحياة أفضل</title>
+    <meta name="description" content="حاسبة النوم الذكي تساعدك في تحديد أفضل أوقات النوم والاستيقاظ بناءً على دورات النوم الطبيعية. احسب أوقات النوم المثالية لتشعر بالنشاط والحيوية.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --background: hsl(222, 84%, 4.9%);
+            --foreground: hsl(210, 40%, 98%);
+            --muted: hsl(217, 32%, 17%);
+            --muted-foreground: hsl(215, 20%, 65%);
+            --card: hsl(222, 47%, 11%);
+            --card-foreground: hsl(210, 40%, 98%);
+            --border: hsl(217, 32%, 17%);
+            --input: hsl(217, 32%, 17%);
+            --primary: hsl(239, 84%, 67%);
+            --primary-foreground: hsl(210, 40%, 98%);
+            --secondary: hsl(172, 66%, 50%);
+            --secondary-foreground: hsl(222, 84%, 4.9%);
+            --accent: hsl(217, 32%, 17%);
+            --accent-foreground: hsl(210, 40%, 98%);
+            --destructive: hsl(0, 62%, 30%);
+            --destructive-foreground: hsl(210, 40%, 98%);
+            --ring: hsl(215, 20%, 65%);
+            --radius: 0.75rem;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--background);
+            color: var(--foreground);
+            line-height: 1.6;
+            direction: rtl;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        /* Header styles */
+        .header {
+            background-color: var(--card);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .logo-icon {
+            background-color: var(--primary);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .live-clock {
+            background-color: var(--muted);
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--secondary);
+        }
+
+        /* Card styles */
+        .card {
+            background-color: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Button styles */
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: 1px solid;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            background-color: hsl(239, 84%, 60%);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background-color: hsl(172, 66%, 45%);
+        }
+
+        .btn-outline {
+            background-color: var(--muted);
+            color: var(--muted-foreground);
+            border-color: var(--border);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--accent);
+        }
+
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+
+        /* Input styles */
+        .input {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            background-color: var(--input);
+            color: var(--foreground);
+            font-size: 1rem;
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px hsl(239, 84%, 67%, 0.2);
+        }
+
+        /* Layout styles */
+        .grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .grid-cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .grid-cols-3 {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        .lg-grid-cols-3 {
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .lg-grid-cols-3 {
+                grid-template-columns: 2fr 1fr;
+            }
+        }
+
+        /* Mode selector styles */
+        .mode-btn {
+            padding: 1.5rem;
+            height: auto;
+            text-align: right;
+            transition: all 0.3s ease;
+        }
+
+        .mode-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .mode-active {
+            background-color: var(--primary);
+            color: var(--primary-foreground);
+            border-color: var(--primary);
+        }
+
+        .mode-active.secondary {
+            background-color: var(--secondary);
+            color: var(--secondary-foreground);
+            border-color: var(--secondary);
+        }
+
+        /* Results styles */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .time-card {
+            background-color: var(--card);
+            border: 1px solid;
+            border-radius: var(--radius);
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .time-card:hover {
+            transform: scale(1.05);
+        }
+
+        .time-card.primary {
+            background-color: hsl(239, 84%, 67%, 0.2);
+            border-color: hsl(239, 84%, 67%, 0.3);
+        }
+
+        .time-card.secondary {
+            background-color: hsl(172, 66%, 50%, 0.2);
+            border-color: hsl(172, 66%, 50%, 0.3);
+        }
+
+        .time-display {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+
+        .cycles-display {
+            font-size: 0.875rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .cycles-display.primary {
+            color: var(--primary);
+        }
+
+        .cycles-display.secondary {
+            color: var(--secondary);
+        }
+
+        .hours-display {
+            font-size: 0.75rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Sidebar styles */
+        .sidebar {
+            position: sticky;
+            top: 6rem;
+        }
+
+        .sidebar-card {
+            margin-bottom: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .sidebar-content {
+            space-y: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-top: 0.125rem;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            font-size: 0.875rem;
+            color: var(--muted-foreground);
+        }
+
+        /* Footer styles */
+        .footer {
+            background-color: var(--card);
+            border-top: 1px solid var(--border);
+            margin-top: 4rem;
+            padding: 1.5rem 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        /* Utility classes */
+        .hidden {
+            display: none;
+        }
+
+        .mb-4 {
+            margin-bottom: 1rem;
+        }
+
+        .mb-6 {
+            margin-bottom: 1.5rem;
+        }
+
+        .mt-8 {
+            margin-top: 2rem;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .font-mono {
+            font-family: 'Courier New', monospace;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        .slide-up {
+            animation: slideUp 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                transform: translateY(20px); 
+                opacity: 0; 
+            }
+            to { 
+                transform: translateY(0); 
+                opacity: 1; 
+            }
+        }
+
+        /* Icons using Unicode symbols */
+        .icon-moon::before { content: "🌙"; }
+        .icon-sun::before { content: "☀️"; }
+        .icon-clock::before { content: "🕐"; }
+        .icon-alarm::before { content: "⏰"; }
+        .icon-bed::before { content: "🛏️"; }
+        .icon-calculator::before { content: "🧮"; }
+        .icon-info::before { content: "ℹ️"; }
+        .icon-warning::before { content: "⚠️"; }
+        .icon-leaf::before { content: "🌿"; }
+        .icon-cycle::before { content: "🔄"; }
+        .icon-brain::before { content: "🧠"; }
+        .icon-weight::before { content: "⚖️"; }
+        .icon-shield::before { content: "🛡️"; }
+        .icon-frown::before { content: "😔"; }
+        .icon-phone::before { content: "📱"; }
+        .icon-coffee::before { content: "☕"; }
+        .icon-bulb::before { content: "💡"; }
+        .icon-heart::before { content: "♥️"; color: #ef4444; }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 0.5rem;
+            }
+            
+            .header-content {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .grid-cols-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .mode-btn {
+                padding: 1rem;
+            }
+        }
+
+        /* Form styles */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--muted-foreground);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .input-group .input {
+            flex: 1;
+        }
+
+        /* Info box styles */
+        .info-box {
+            background-color: var(--muted);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .info-box .info-text {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <span class="icon-moon"></span>
+                    </div>
+                    <h1 class="logo-text">حاسبة النوم الذكي</h1>
+                </div>
+                <div class="live-clock">
+                    <span class="icon-clock"></span>
+                    <span id="current-time" class="font-mono">--:--</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="padding-top: 2rem; padding-bottom: 2rem;">
+        <div class="lg-grid-cols-3 grid">
+            <!-- Main Calculator Section -->
+            <div>
+                <!-- Mode Selector -->
+                <div class="card">
+                    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1rem;">اختر نوع الحساب</h2>
+                    <div class="grid grid-cols-2">
+                        <button id="sleep-now-btn" class="btn mode-btn mode-active" onclick="setMode('sleep-now')">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span class="icon-bed"></span>
+                                <div class="text-right">
+                                    <div style="font-weight: 600;">سأنام الآن</div>
+                                    <div style="font-size: 0.875rem; opacity: 0.9;">احسب أوقات الاستيقاظ المثالية</div>
+                                </div>
+                            </div>
+                        </button>
+                        
+                        <button id="wake-at-btn" class="btn btn-outline mode-btn" onclick="setMode('wake-at')">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span class="icon-alarm"></span>
+                                <div class="text-right">
+                                    <div style="font-weight: 600;">أريد الاستيقاظ في وقت محدد</div>
+                                    <div style="font-size: 0.875rem; opacity: 0.9;">احسب متى يجب أن أنام</div>
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Calculator Forms -->
+                <div class="card">
+                    <!-- Sleep Now Calculator -->
+                    <div id="sleep-now-form">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="icon-moon" style="color: var(--primary);"></span>
+                            <span>سأنام الآن - احسب أوقات الاستيقاظ المثالية</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">وقت النوم</label>
+                            <div class="input-group">
+                                <button class="btn btn-secondary" onclick="useCurrentTime()">
+                                    <span class="icon-clock"></span>
+                                    استخدم الوقت الحالي
+                                </button>
+                                <input type="time" id="sleep-time" class="input">
+                            </div>
+                        </div>
+                        
+                        <button class="btn btn-primary btn-full" onclick="calculateWakeTimes()">
+                            <span class="icon-calculator"></span>
+                            احسب أوقات الاستيقاظ المثالية
+                        </button>
+                    </div>
+
+                    <!-- Wake At Calculator -->
+                    <div id="wake-at-form" class="hidden">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="icon-alarm" style="color: var(--secondary);"></span>
+                            <span>أريد الاستيقاظ في وقت محدد</span>
+                        </h3>
+                        
+                        <div class="form-group">
+                            <label class="form-label">وقت الاستيقاظ المطلوب</label>
+                            <input type="time" id="wake-time" class="input">
+                        </div>
+                        
+                        <button class="btn btn-secondary btn-full" onclick="calculateSleepTimes()">
+                            <span class="icon-calculator"></span>
+                            احسب أوقات النوم المثالية
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Results Display -->
+                <div id="results-section" class="hidden">
+                    <div class="card fade-in">
+                        <h3 style="font-size: 1.125rem; font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span class="icon-bulb" style="color: #eab308;"></span>
+                            <span id="results-title"></span>
+                        </h3>
+                        
+                        <div id="results-grid" class="results-grid"></div>
+                        
+                        <div class="info-box">
+                            <div class="info-text">
+                                <span class="icon-info" style="color: #60a5fa; margin-top: 0.125rem;"></span>
+                                <span style="font-size: 0.875rem; color: var(--muted-foreground);">
+                                    يتم احتساب دورات النوم بناءً على 90 دقيقة لكل دورة، مع إضافة 15-20 دقيقة للاستغراق في النوم
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Health Information Sidebar -->
+            <div class="sidebar">
+                <!-- Night vs Day Sleep -->
+                <div class="card sidebar-card">
+                    <div class="sidebar-title">
+                        <span class="icon-moon" style="color: #eab308;"></span>
+                        <span>الفرق بين النوم ليلاً ونهاراً</span>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="info-item">
+                            <span class="icon-moon info-icon" style="color: var(--primary);"></span>
+                            <div>
+                                <div style="font-weight: 500; color: var(--primary);">النوم ليلاً</div>
+                                <div class="info-text">أفضل لصحة الدماغ والجسم بسبب ضبط الساعة البيولوجية وإفراز هرمون الميلاتونين</div>
+                            </div>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-sun info-icon" style="color: #eab308;"></span>
+                            <div>
+                                <div style="font-weight: 500; color: #eab308;">النوم نهاراً</div>
+                                <div class="info-text">يقلل جودة النوم ويؤثر على الهرمونات والساعة البيولوجية</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sleep Disorders Harms -->
+                <div class="card sidebar-card">
+                    <div class="sidebar-title">
+                        <span class="icon-warning" style="color: #ef4444;"></span>
+                        <span>أضرار اضطراب النوم</span>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="info-item">
+                            <span class="icon-brain info-icon" style="color: #ef4444;"></span>
+                            <span class="info-text">ضعف التركيز والذاكرة</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-weight info-icon" style="color: #ef4444;"></span>
+                            <span class="info-text">زيادة الوزن وبطء الأيض</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-shield info-icon" style="color: #ef4444;"></span>
+                            <span class="info-text">ضعف جهاز المناعة</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-frown info-icon" style="color: #ef4444;"></span>
+                            <span class="info-text">مشاكل نفسية ومزاجية</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Natural Sleep Tips -->
+                <div class="card sidebar-card">
+                    <div class="sidebar-title">
+                        <span class="icon-leaf" style="color: #22c55e;"></span>
+                        <span>نصائح لتنظيم النوم طبيعياً</span>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="info-item">
+                            <span class="icon-clock info-icon" style="color: #22c55e;"></span>
+                            <span class="info-text">النوم والاستيقاظ في نفس التوقيت يومياً</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-phone info-icon" style="color: #22c55e;"></span>
+                            <span class="info-text">تقليل استخدام الهاتف قبل النوم بساعة</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-coffee info-icon" style="color: #22c55e;"></span>
+                            <span class="info-text">تجنب الكافيين بعد الساعة 2 مساءً</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="icon-bulb info-icon" style="color: #22c55e;"></span>
+                            <span class="info-text">استخدام إضاءة خافتة قبل النوم</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sleep Cycle Info -->
+                <div class="card sidebar-card">
+                    <div class="sidebar-title">
+                        <span class="icon-cycle" style="color: #3b82f6;"></span>
+                        <span>دورات النوم</span>
+                    </div>
+                    <div class="sidebar-content">
+                        <div class="info-text" style="margin-bottom: 0.5rem;">دورة النوم الكاملة تستغرق حوالي 90 دقيقة وتتكون من:</div>
+                        <ul style="margin-right: 1rem; margin-bottom: 0.75rem;">
+                            <li class="info-text">• النوم الخفيف (10-15 دقيقة)</li>
+                            <li class="info-text">• النوم العميق (45-60 دقيقة)</li>
+                            <li class="info-text">• نوم الأحلام REM (15-20 دقيقة)</li>
+                        </ul>
+                        <div style="color: #3b82f6; font-size: 0.875rem;">
+                            الاستيقاظ في نهاية الدورة يجعلك تشعر بالنشاط أكثر
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p style="display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1rem; color: var(--muted-foreground);">
+                <span class="icon-heart"></span>
+                <span>حاسبة النوم الذكي - نوم صحي لحياة أفضل</span>
+            </p>
+            
+            <div class="footer-links">
+                <a href="https://ibrahimmustafacv.github.io/portfolio/" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    للمزيد من المشاريع
+                </a>
+                <a href="https://ibrahimmustafacv.github.io/my-social-media-page/" target="_blank" rel="noopener noreferrer" class="btn btn-secondary">
+                    تابعنا هنا
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Global variables
+        let currentMode = 'sleep-now';
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            updateClock();
+            setInterval(updateClock, 1000);
+        });
+
+        // Update live clock
+        function updateClock() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+
+        // Set calculation mode
+        function setMode(mode) {
+            currentMode = mode;
+            
+            const sleepNowBtn = document.getElementById('sleep-now-btn');
+            const wakeAtBtn = document.getElementById('wake-at-btn');
+            const sleepNowForm = document.getElementById('sleep-now-form');
+            const wakeAtForm = document.getElementById('wake-at-form');
+            const resultsSection = document.getElementById('results-section');
+
+            if (mode === 'sleep-now') {
+                sleepNowBtn.className = 'btn mode-btn mode-active';
+                wakeAtBtn.className = 'btn btn-outline mode-btn';
+                sleepNowForm.classList.remove('hidden');
+                wakeAtForm.classList.add('hidden');
+            } else {
+                sleepNowBtn.className = 'btn btn-outline mode-btn';
+                wakeAtBtn.className = 'btn mode-btn mode-active secondary';
+                sleepNowForm.classList.add('hidden');
+                wakeAtForm.classList.remove('hidden');
+            }
+            
+            resultsSection.classList.add('hidden');
+        }
+
+        // Use current time for sleep time input
+        function useCurrentTime() {
+            const now = new Date();
+            const timeString = now.toTimeString().slice(0, 5);
+            document.getElementById('sleep-time').value = timeString;
+        }
+
+        // Helper functions for time calculations
+        function addMinutes(time, minutes) {
+            const date = new Date(`2000-01-01 ${time}`);
+            date.setMinutes(date.getMinutes() + minutes);
+            return date.toTimeString().slice(0, 5);
+        }
+
+        function subtractMinutes(time, minutes) {
+            const date = new Date(`2000-01-01 ${time}`);
+            date.setMinutes(date.getMinutes() - minutes);
+            return date.toTimeString().slice(0, 5);
+        }
+
+        function formatTimeArabic(time) {
+            const [hours, minutes] = time.split(':');
+            const hour24 = parseInt(hours);
+            const hour12 = hour24 % 12 || 12;
+            const period = hour24 < 12 ? 'ص' : 'م';
+            return `${hour12}:${minutes} ${period}`;
+        }
+
+        // Calculate wake times based on sleep time
+        function calculateWakeTimes() {
+            const sleepTime = document.getElementById('sleep-time').value;
+            
+            if (!sleepTime) {
+                alert('يرجى إدخال وقت النوم');
+                return;
+            }
+
+            const fallAsleepTime = 20; // 20 minutes to fall asleep
+            const cycleLength = 90; // 90 minutes per cycle
+            const results = [];
+
+            for (let cycles = 3; cycles <= 6; cycles++) {
+                const totalMinutes = fallAsleepTime + (cycles * cycleLength);
+                const wakeTime = addMinutes(sleepTime, totalMinutes);
+                const hours = Math.round((totalMinutes / 60) * 10) / 10;
+                
+                results.push({
+                    time: wakeTime,
+                    cycles: cycles,
+                    hours: hours
+                });
+            }
+
+            const title = `أوقات الاستيقاظ المثالية لو نمت الساعة ${formatTimeArabic(sleepTime)}`;
+            displayResults(results, title, 'sleep-now');
+        }
+
+        // Calculate sleep times based on wake time
+        function calculateSleepTimes() {
+            const wakeTime = document.getElementById('wake-time').value;
+            
+            if (!wakeTime) {
+                alert('يرجى إدخال وقت الاستيقاظ المطلوب');
+                return;
+            }
+
+            const fallAsleepTime = 20; // 20 minutes to fall asleep
+            const cycleLength = 90; // 90 minutes per cycle
+            const results = [];
+
+            for (let cycles = 6; cycles >= 3; cycles--) {
+                const totalMinutes = fallAsleepTime + (cycles * cycleLength);
+                const sleepTime = subtractMinutes(wakeTime, totalMinutes);
+                const hours = Math.round((totalMinutes / 60) * 10) / 10;
+                
+                results.push({
+                    time: sleepTime,
+                    cycles: cycles,
+                    hours: hours
+                });
+            }
+
+            const title = `أوقات النوم المثالية للاستيقاظ الساعة ${formatTimeArabic(wakeTime)}`;
+            displayResults(results, title, 'wake-at');
+        }
+
+        // Display calculation results
+        function displayResults(results, title, mode) {
+            const resultsSection = document.getElementById('results-section');
+            const resultsTitle = document.getElementById('results-title');
+            const resultsGrid = document.getElementById('results-grid');
+
+            resultsTitle.textContent = title;
+            resultsGrid.innerHTML = '';
+
+            const isWakeMode = mode === 'sleep-now';
+            const cardClass = isWakeMode ? 'primary' : 'secondary';
+            const cyclesClass = isWakeMode ? 'primary' : 'secondary';
+            const icon = isWakeMode ? 'icon-sun' : 'icon-moon';
+
+            results.forEach(result => {
+                const timeCard = document.createElement('div');
+                timeCard.className = `time-card ${cardClass} slide-up`;
+                
+                timeCard.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 0.5rem;">
+                        <span class="${icon}" style="font-size: 1.5rem;"></span>
+                    </div>
+                    <div class="time-display">${formatTimeArabic(result.time)}</div>
+                    <div class="cycles-display ${cyclesClass}">
+                        ${result.cycles} دورات نوم
+                    </div>
+                    <div class="hours-display">
+                        ${result.hours} ساعة
+                    </div>
+                `;
+                
+                resultsGrid.appendChild(timeCard);
+            });
+
+            resultsSection.classList.remove('hidden');
+            
+            // Smooth scroll to results
+            setTimeout(() => {
+                resultsSection.scrollIntoView({ behavior: 'smooth' });
+            }, 100);
+        }
+    </script>
+</body>
+</html>
